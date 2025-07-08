@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: blackjack
+  r2dbc:
+    url: ${R2DBC_URL}
+    username: ${R2DBC_USER}
+    password: ${R2DBC_PASSWORD}
+    pool:
+      enabled: true
+      max-size: 20
+      initial-size: 10
+      max-idle-time: 30m
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  data:
+    mongodb:
+      password: ${MONGODB_PASSWORD}
+      port: ${MONGODB_PORT}
+      host: ${MONGODB_HOST}
+      database: ${MONGODB_DATABASE}
+      username: ${MONGODB_USER}
+      auto-index-creation: true
+
+logging:
+  level:
+    org.springframework.r2dbc.core: DEBUG
+    io.r2dbc.spi: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    urls:
+      - url: /api-docs
+        name: API Documentation
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+    tags-sorter: alpha

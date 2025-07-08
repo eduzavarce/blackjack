@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS user_accounts (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    balance DOUBLE NOT NULL
+);
