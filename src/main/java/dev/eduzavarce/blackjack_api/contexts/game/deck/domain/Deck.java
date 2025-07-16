@@ -36,7 +36,9 @@ public class Deck extends AggregateRoot {
     for (Map<String, Object> cardMap : cardsList) {
       String suit = (String) cardMap.get("suit");
       int value = ((Number) cardMap.get("value")).intValue();
-      deck.cards.add(new Card(suit, value));
+      String rankStr = (String) cardMap.get("rank");
+      Rank rank = rankStr != null ? Rank.valueOf(rankStr) : null;
+      deck.cards.add(new Card(suit, value, rank));
     }
 
     return deck;
@@ -46,7 +48,7 @@ public class Deck extends AggregateRoot {
     List<Card> deck = new ArrayList<>();
     for (Suit suit : Suit.values()) {
       for (Rank rank : Rank.values()) {
-        deck.add(new Card(suit.getName(), rank.getValue()));
+        deck.add(new Card(suit.getName(), rank.getValue(), rank));
       }
     }
     // Shuffle the deck
@@ -71,10 +73,15 @@ public class Deck extends AggregateRoot {
         "cards",
         this.cards.stream()
             .map(
-                card ->
-                    Map.of(
-                        "suit", card.suit(),
-                        "value", card.value()))
+                card -> {
+                    Map<String, Object> cardMap = new HashMap<>();
+                    cardMap.put("suit", card.suit());
+                    cardMap.put("value", card.value());
+                    if (card.rank() != null) {
+                        cardMap.put("rank", card.rank().name());
+                    }
+                    return cardMap;
+                })
             .collect(Collectors.toList()));
     return primitives;
   }

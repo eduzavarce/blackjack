@@ -32,22 +32,39 @@ public class CreatePlayService {
       return Mono.error(new IllegalArgumentException("Bet amount cannot be negative"));
     }
 
-    // Check if user has enough balance
-    return userAccountRepository
-        .findById(dto.userId())
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("User not found")))
-        .flatMap(
-            userAccountEntity -> {
-              double userBalance = userAccountEntity.toDomain().toPrimitives().balance();
-              if (dto.betAmount() > userBalance) {
-                return Mono.error(
-                    new IllegalArgumentException("Bet amount cannot be greater than user balance"));
-              }
+    // Check if play already exists
+    return playRepository
+        .findPlayById(dto.id())
+        .flatMap(existingPlay -> Mono.error(new IllegalArgumentException("Play already exists")))
+        .switchIfEmpty(
+            // Check if user has enough balance
+            userAccountRepository
+                .findById(dto.userId())
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("User not found")))
+                .flatMap(
+                    userAccountEntity -> {
+                      double userBalance = userAccountEntity.toDomain().toPrimitives().balance();
+                      if (dto.betAmount() > userBalance) {
+                        return Mono.error(
+                            new IllegalArgumentException(
+                                "Bet amount cannot be greater than user balance"));
+                      }
 
-              // Create and save the play
-              Play play = Play.create(dto.id(), dto.userId(), dto.betAmount());
-              return playRepository.save(play);
-            })
+                      // Create the play
+                      Play play = Play.create(dto.id(), dto.userId(), dto.betAmount());
+
+                      // Check if any player has reached 21
+                      int playerScore = play.calculateHandValue(play.toPrimitives().playerCards());
+                      int dealerScore = play.calculateHandValue(play.toPrimitives().dealerCards());
+
+                      if (playerScore == 21 || dealerScore == 21) {
+                        // Determine winner and mark as finished
+                        play.performDealerPlay();
+                      }
+
+                      // Save the play
+                      return playRepository.save(play);
+                    }))
         .then();
   }
 }

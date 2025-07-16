@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Card;
+import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Rank;
 import dev.eduzavarce.blackjack_api.contexts.game.play.application.FindPlayByIdService;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayDto;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayStatus;
@@ -36,12 +37,12 @@ public class GetPlayGetControllerTest {
     double betAmount = 100.0;
 
     List<Card> playerCards = new ArrayList<>();
-    playerCards.add(new Card("Hearts", 10));
-    playerCards.add(new Card("Spades", 8));
+    playerCards.add(new Card("Hearts", 10, Rank.TEN));
+    playerCards.add(new Card("Spades", 8, Rank.EIGHT));
 
     List<Card> dealerCards = new ArrayList<>();
-    dealerCards.add(new Card("Diamonds", 9));
-    dealerCards.add(new Card("Clubs", 7));
+    dealerCards.add(new Card("Diamonds", 9, Rank.NINE));
+    dealerCards.add(new Card("Clubs", 7, Rank.SEVEN));
 
     PlayDto playDto =
         new PlayDto(playId, PlayStatus.WON, userId, betAmount, playerCards, dealerCards, 18, 16);

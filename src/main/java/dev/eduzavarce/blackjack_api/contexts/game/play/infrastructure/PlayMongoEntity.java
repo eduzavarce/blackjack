@@ -1,12 +1,16 @@
 package dev.eduzavarce.blackjack_api.contexts.game.play.infrastructure;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Card;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.Play;
+import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayDto;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayEntity;
 
 @Document(collection = "plays")
@@ -39,11 +43,48 @@ public class PlayMongoEntity implements PlayEntity {
   }
 
   public static PlayMongoEntity fromDomain(Play play) {
-    return new PlayMongoEntity();
+    PlayDto dto = play.toPrimitives();
+
+    // Convert player cards to maps
+    List<Map<String, Object>> playerCardsMaps = new ArrayList<>();
+    for (Card card : dto.playerCards()) {
+      Map<String, Object> cardMap = new HashMap<>();
+      cardMap.put("suit", card.suit());
+      cardMap.put("value", card.value());
+      if (card.rank() != null) {
+        cardMap.put("rank", card.rank().name());
+      }
+      playerCardsMaps.add(cardMap);
+    }
+
+    // Convert dealer cards to maps
+    List<Map<String, Object>> dealerCardsMaps = new ArrayList<>();
+    for (Card card : dto.dealerCards()) {
+      Map<String, Object> cardMap = new HashMap<>();
+      cardMap.put("suit", card.suit());
+      cardMap.put("value", card.value());
+      if (card.rank() != null) {
+        cardMap.put("rank", card.rank().name());
+      }
+      dealerCardsMaps.add(cardMap);
+    }
+
+    // Get the deck primitives from the play
+    Map<String, Object> deckMap = play.getDeckPrimitives();
+
+    return new PlayMongoEntity(
+        dto.id(),
+        dto.userId(),
+        dto.betAmount(),
+        dto.status().toString(),
+        deckMap,
+        playerCardsMaps,
+        dealerCardsMaps
+    );
   }
 
   public Play toDomain() {
-    return Play.create(id, userId, betAmount);
+    return Play.fromPrimitives(id, status, userId, betAmount, deck, playerCards, dealerCards);
   }
 
   public String getId() {

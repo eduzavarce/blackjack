@@ -18,7 +18,7 @@ public class UpdateRankingOnPlayCompleted {
     this.rankingRepository = rankingRepository;
   }
 
-  public void handle(PlayCompleted event) {
+  public void on(PlayCompleted event) {
     PlayDto dto = (PlayDto) event.toPrimitives().body();
     if (dto == null || dto.userId() == null) {
       throw new IllegalArgumentException("PlayDto or userId cannot be null");

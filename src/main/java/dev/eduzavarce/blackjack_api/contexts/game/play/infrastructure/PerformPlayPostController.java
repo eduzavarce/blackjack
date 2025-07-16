@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -48,5 +49,26 @@ public class PerformPlayPostController {
       @Parameter(description = "Play ID", required = true) @PathVariable @ValidUUID @NotBlank
           String id) {
     return service.execute(id).map(ResponseEntity::ok);
+  }
+
+  @Operation(
+      summary = "Perform stand",
+      description = "Player stands, dealer draws until reaching at least 17 points, and the game result is determined")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Stand performed successfully",
+            content = @Content(schema = @Schema(implementation = PlayDto.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid play ID format"),
+        @ApiResponse(responseCode = "404", description = "Play not found"),
+        @ApiResponse(responseCode = "409", description = "Play is already completed"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+      })
+  @PatchMapping("/api/v1/play/{id}")
+  public Mono<ResponseEntity<PlayDto>> executeStand(
+      @Parameter(description = "Play ID", required = true) @PathVariable @ValidUUID @NotBlank
+          String id) {
+    return service.executeStand(id).map(ResponseEntity::ok);
   }
 }

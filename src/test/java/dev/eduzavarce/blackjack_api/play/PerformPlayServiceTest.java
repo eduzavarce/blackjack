@@ -15,6 +15,7 @@ import reactor.test.StepVerifier;
 import dev.eduzavarce.blackjack_api.contexts.game.play.application.PerformPlayService;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.Play;
 import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayRepository;
+import dev.eduzavarce.blackjack_api.contexts.game.play.domain.PlayStatus;
 import dev.eduzavarce.blackjack_api.contexts.shared.domain.EventBus;
 
 public class PerformPlayServiceTest {
@@ -60,6 +61,47 @@ public class PerformPlayServiceTest {
 
     when(playRepository.findPlayById(playId)).thenReturn(Mono.empty());
     StepVerifier.create(performPlayService.execute(playId))
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof IllegalArgumentException
+                    && throwable.getMessage().equals("Play not found"))
+        .verify();
+
+    verify(playRepository, times(1)).findPlayById(playId);
+    verify(playRepository, never()).save(any(Play.class));
+  }
+
+  @Test
+  public void testPerformStand_WithValidPlay_ShouldStandAndSaveToRepository() {
+    String playId = UUID.randomUUID().toString();
+    String userId = UUID.randomUUID().toString();
+    double betAmount = 100.0;
+    Play play = Play.create(playId, userId, betAmount);
+
+    when(playRepository.findPlayById(playId)).thenReturn(Mono.just(play));
+    when(playRepository.save(any(Play.class))).thenReturn(Mono.empty());
+
+    StepVerifier.create(performPlayService.executeStand(playId))
+        .expectNextMatches(
+            playDto ->
+                playDto.id().equals(playId)
+                    && playDto.userId().equals(userId)
+                    && playDto.betAmount() == betAmount
+                    && playDto.playerCards() != null
+                    && playDto.dealerCards() != null
+                    && (playDto.status() == PlayStatus.WON || playDto.status() == PlayStatus.LOST))
+        .verifyComplete();
+
+    verify(playRepository, times(1)).findPlayById(playId);
+    verify(playRepository, times(1)).save(any(Play.class));
+  }
+
+  @Test
+  public void testPerformStand_WithNonExistentPlay_ShouldThrowException() {
+    String playId = UUID.randomUUID().toString();
+
+    when(playRepository.findPlayById(playId)).thenReturn(Mono.empty());
+    StepVerifier.create(performPlayService.executeStand(playId))
         .expectErrorMatches(
             throwable ->
                 throwable instanceof IllegalArgumentException

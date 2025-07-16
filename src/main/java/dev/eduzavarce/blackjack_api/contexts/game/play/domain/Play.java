@@ -2,9 +2,11 @@ package dev.eduzavarce.blackjack_api.contexts.game.play.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Card;
 import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Deck;
+import dev.eduzavarce.blackjack_api.contexts.game.deck.domain.Rank;
 import dev.eduzavarce.blackjack_api.contexts.shared.domain.AggregateRoot;
 import dev.eduzavarce.blackjack_api.contexts.shared.domain.UserId;
 
@@ -34,11 +36,55 @@ public class Play extends AggregateRoot {
     this.dealerCards.add(deck.drawCard());
   }
 
+  private Play(PlayId id, PlayStatus status, UserId userId, double betAmount, Deck deck, List<Card> playerCards, List<Card> dealerCards) {
+    this.id = id;
+    this.status = status;
+    this.userId = userId;
+    this.betAmount = betAmount;
+    this.deck = deck;
+    this.playerCards = new ArrayList<>(playerCards);
+    this.dealerCards = new ArrayList<>(dealerCards);
+  }
+
   public static Play create(String id, String userId, double betAmount) {
     Play play = new Play(new PlayId(id), PlayStatus.IN_PROGRESS, new UserId(userId), betAmount);
     play.record(new PlayCreated(play.id.value(), "play.created", play.toPrimitives()));
 
     return play;
+  }
+
+  public static Play fromPrimitives(String id, String status, String userId, double betAmount, 
+                                   java.util.Map<String, Object> deckMap, 
+                                   List<java.util.Map<String, Object>> playerCardsMap, 
+                                   List<java.util.Map<String, Object>> dealerCardsMap) {
+    PlayId playId = new PlayId(id);
+    PlayStatus playStatus = PlayStatus.valueOf(status);
+    UserId userIdObj = new UserId(userId);
+
+    // Reconstruct the deck
+    Deck deck = Deck.fromPrimitives(deckMap);
+
+    // Reconstruct the player cards
+    List<Card> playerCards = new ArrayList<>();
+    for (java.util.Map<String, Object> cardMap : playerCardsMap) {
+      String suit = (String) cardMap.get("suit");
+      int value = ((Number) cardMap.get("value")).intValue();
+      String rankStr = (String) cardMap.get("rank");
+      Rank rank = rankStr != null ? Rank.valueOf(rankStr) : null;
+      playerCards.add(new Card(suit, value, rank));
+    }
+
+    // Reconstruct the dealer cards
+    List<Card> dealerCards = new ArrayList<>();
+    for (java.util.Map<String, Object> cardMap : dealerCardsMap) {
+      String suit = (String) cardMap.get("suit");
+      int value = ((Number) cardMap.get("value")).intValue();
+      String rankStr = (String) cardMap.get("rank");
+      Rank rank = rankStr != null ? Rank.valueOf(rankStr) : null;
+      dealerCards.add(new Card(suit, value, rank));
+    }
+
+    return new Play(playId, playStatus, userIdObj, betAmount, deck, playerCards, dealerCards);
   }
 
   public Play performPlay() {
@@ -75,6 +121,14 @@ public class Play extends AggregateRoot {
     record(new PlayCompleted(id.value(), "play.completed", toPrimitives()));
 
     return this;
+  }
+
+  public Play performStand() {
+    if (!status.isInProgress()) {
+      throw new IllegalStateException("Cannot stand on a game that is not in progress");
+    }
+
+    return performDealerPlay();
   }
 
   private void determineWinner() {
@@ -132,5 +186,9 @@ public class Play extends AggregateRoot {
         dealerCards,
         calculateHandValue(playerCards),
         calculateHandValue(dealerCards));
+  }
+
+  public Map<String, Object> getDeckPrimitives() {
+    return deck.toPrimitives();
   }
 }

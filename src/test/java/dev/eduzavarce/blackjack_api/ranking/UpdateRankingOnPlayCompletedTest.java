@@ -63,7 +63,7 @@ public class UpdateRankingOnPlayCompletedTest {
     when(rankingRepository.findByUserId(userId)).thenReturn(Mono.just(ranking));
     when(rankingRepository.save(any(Ranking.class))).thenReturn(Mono.empty());
 
-    subscriber.handle(event);
+    subscriber.on(event);
 
     verify(rankingRepository).findByUserId(userId);
     verify(rankingRepository).save(rankingCaptor.capture());
@@ -93,7 +93,7 @@ public class UpdateRankingOnPlayCompletedTest {
     when(rankingRepository.findByUserId(userId)).thenReturn(Mono.just(ranking));
     when(rankingRepository.save(any(Ranking.class))).thenReturn(Mono.empty());
 
-    subscriber.handle(event);
+    subscriber.on(event);
 
     verify(rankingRepository).findByUserId(userId);
     verify(rankingRepository).save(rankingCaptor.capture());

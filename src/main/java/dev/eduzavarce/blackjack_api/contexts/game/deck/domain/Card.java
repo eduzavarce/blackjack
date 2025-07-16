@@ -10,12 +10,22 @@ public record Card(
             allowableValues = {"Hearts", "Diamonds", "Clubs", "Spades"})
         String suit,
     @Schema(
-            description = "Value of the card (1-13, where Ace=1, Jack=11, Queen=12, King=13)",
+            description = "Value of the card (1-10, where Ace=1, Jack/Queen/King=10)",
             example = "10")
-        int value) {
+        int value,
+    @Schema(
+            description = "Rank of the card",
+            example = "KING",
+            allowableValues = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"})
+        Rank rank) {
+
+  // Constructor that takes only suit and value for backward compatibility
+  public Card(String suit, int value) {
+    this(suit, value, null);
+  }
 
   @Override
   public String toString() {
-    return value + " of " + suit;
+    return (rank != null ? rank.name() : value) + " of " + suit;
   }
 }

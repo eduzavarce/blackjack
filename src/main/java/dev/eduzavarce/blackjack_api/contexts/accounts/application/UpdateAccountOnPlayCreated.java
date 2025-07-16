@@ -21,7 +21,7 @@ public class UpdateAccountOnPlayCreated {
     this.accountRepository = accountRepository;
   }
 
-  public void handle(PlayCreated event) {
+  public void on(PlayCreated event) {
     PlayDto dto = (PlayDto) event.toPrimitives().body();
     if (dto == null || dto.userId() == null) {
       throw new IllegalArgumentException("PlayDto or userId cannot be null");

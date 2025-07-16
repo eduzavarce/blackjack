@@ -35,4 +35,18 @@ public class PerformPlayService {
               return playRepository.save(updatedPlay).thenReturn(updatedPlay.toPrimitives());
             });
   }
+
+  public Mono<PlayDto> executeStand(String playId) {
+    return playRepository
+        .findPlayById(playId)
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("Play not found")))
+        .flatMap(
+            play -> {
+              // Player stands, dealer plays
+              Play updatedPlay = play.performStand();
+
+              // Save the updated play
+              return playRepository.save(updatedPlay).thenReturn(updatedPlay.toPrimitives());
+            });
+  }
 }
