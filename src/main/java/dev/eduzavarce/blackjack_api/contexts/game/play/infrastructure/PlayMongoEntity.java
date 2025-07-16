@@ -79,8 +79,7 @@ public class PlayMongoEntity implements PlayEntity {
         dto.status().toString(),
         deckMap,
         playerCardsMaps,
-        dealerCardsMaps
-    );
+        dealerCardsMaps);
   }
 
   public Play toDomain() {

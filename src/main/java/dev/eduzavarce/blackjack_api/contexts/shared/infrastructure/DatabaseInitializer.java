@@ -11,22 +11,19 @@ import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 @Configuration
 public class DatabaseInitializer {
 
+  @Bean
+  public ConnectionFactoryInitializer initializer(
+      ConnectionFactory connectionFactory, @Value("classpath:schema.sql") Resource schemaScript) {
 
-    @Bean
-    public ConnectionFactoryInitializer initializer(
-            ConnectionFactory connectionFactory, @Value("classpath:schema.sql") Resource schemaScript) {
+    ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+    initializer.setConnectionFactory(connectionFactory);
 
+    ResourceDatabasePopulator populator = new ResourceDatabasePopulator(schemaScript);
+    initializer.setDatabasePopulator(populator);
 
-        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-        initializer.setConnectionFactory(connectionFactory);
+    // Ensure the initializer runs even if the database already exists
+    initializer.setEnabled(true);
 
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(schemaScript);
-        initializer.setDatabasePopulator(populator);
-
-        // Ensure the initializer runs even if the database already exists
-        initializer.setEnabled(true);
-
-
-        return initializer;
-    }
+    return initializer;
+  }
 }

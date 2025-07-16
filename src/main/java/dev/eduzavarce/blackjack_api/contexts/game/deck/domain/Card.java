@@ -16,7 +16,10 @@ public record Card(
     @Schema(
             description = "Rank of the card",
             example = "KING",
-            allowableValues = {"TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK", "QUEEN", "KING", "ACE"})
+            allowableValues = {
+              "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "JACK",
+              "QUEEN", "KING", "ACE"
+            })
         Rank rank) {
 
   // Constructor that takes only suit and value for backward compatibility

@@ -74,13 +74,13 @@ public class Deck extends AggregateRoot {
         this.cards.stream()
             .map(
                 card -> {
-                    Map<String, Object> cardMap = new HashMap<>();
-                    cardMap.put("suit", card.suit());
-                    cardMap.put("value", card.value());
-                    if (card.rank() != null) {
-                        cardMap.put("rank", card.rank().name());
-                    }
-                    return cardMap;
+                  Map<String, Object> cardMap = new HashMap<>();
+                  cardMap.put("suit", card.suit());
+                  cardMap.put("value", card.value());
+                  if (card.rank() != null) {
+                    cardMap.put("rank", card.rank().name());
+                  }
+                  return cardMap;
                 })
             .collect(Collectors.toList()));
     return primitives;

@@ -75,7 +75,7 @@ class ChangeUserNamePatchControllerIntegrationTest {
     ChangeUserNameRequest changeUserNameRequest = new ChangeUserNameRequest(newName);
     webTestClient
         .patch()
-        .uri("/api/v1/users/{id}/name", userId)
+        .uri("/api/v1/users/{id}", userId)
         .contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(changeUserNameRequest))
         .exchange()

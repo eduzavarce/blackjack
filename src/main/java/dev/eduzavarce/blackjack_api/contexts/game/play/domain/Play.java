@@ -36,7 +36,14 @@ public class Play extends AggregateRoot {
     this.dealerCards.add(deck.drawCard());
   }
 
-  private Play(PlayId id, PlayStatus status, UserId userId, double betAmount, Deck deck, List<Card> playerCards, List<Card> dealerCards) {
+  private Play(
+      PlayId id,
+      PlayStatus status,
+      UserId userId,
+      double betAmount,
+      Deck deck,
+      List<Card> playerCards,
+      List<Card> dealerCards) {
     this.id = id;
     this.status = status;
     this.userId = userId;
@@ -53,10 +60,14 @@ public class Play extends AggregateRoot {
     return play;
   }
 
-  public static Play fromPrimitives(String id, String status, String userId, double betAmount, 
-                                   java.util.Map<String, Object> deckMap, 
-                                   List<java.util.Map<String, Object>> playerCardsMap, 
-                                   List<java.util.Map<String, Object>> dealerCardsMap) {
+  public static Play fromPrimitives(
+      String id,
+      String status,
+      String userId,
+      double betAmount,
+      java.util.Map<String, Object> deckMap,
+      List<java.util.Map<String, Object>> playerCardsMap,
+      List<java.util.Map<String, Object>> dealerCardsMap) {
     PlayId playId = new PlayId(id);
     PlayStatus playStatus = PlayStatus.valueOf(status);
     UserId userIdObj = new UserId(userId);
