@@ -55,38 +55,213 @@ docker run -p 8080:8080 --env-file .env blackjack-api
 
 ## API Endpoints
 
+The Blackjack API provides the following RESTful endpoints for managing users, game plays, and rankings. All endpoints return JSON responses and accept JSON request bodies where applicable.
+
+### Error Handling
+
+The API uses a consistent error response format across all endpoints:
+
+```json
+{
+  "message": "Error message describing what went wrong"
+}
+```
+
+For validation errors, a more detailed response is provided:
+
+```json
+{
+  "errors": [
+    {
+      "field": "name",
+      "message": "Name cannot be empty"
+    },
+    {
+      "field": "email",
+      "message": "Invalid email format"
+    }
+  ]
+}
+```
+
+Common HTTP status codes:
+
+- 200 OK: Request succeeded
+- 201 Created: Resource created successfully
+- 400 Bad Request: Invalid request parameters or body
+- 404 Not Found: Resource not found
+- 409 Conflict: Resource already exists
+- 422 Unprocessable Entity: Validation errors
+- 500 Internal Server Error: Server-side error
+
 ### User Management
 
 - **Create User**
-  - `PUT /api/v1/users/{userId}`
-  - Request Body: `{ "name": "John Doe", "email": "john.doe@example.com" }`
-  - Creates a new user with the specified ID, name, and email
+  - `PUT /api/v1/users/{id}`
+  - Description: Creates a new user with the specified ID, name, and email
+  - Request Body:
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    }
+    ```
+  - Response Status:
+    - 201: User created successfully
+    - 400: Invalid request body or validation error
+    - 409: User already exists
+    - 500: Internal server error
 
 - **Change User Name**
-  - `PATCH /api/v1/users/{userId}/name`
-  - Request Body: `{ "name": "John Smith" }`
-  - Updates the name of an existing user
+  - `PATCH /api/v1/users/{id}`
+  - Description: Updates the name of an existing user
+  - Request Body:
+    ```json
+    {
+      "name": "John Smith"
+    }
+    ```
+  - Response Status:
+    - 200: User name updated successfully
+    - 400: Invalid user ID format or invalid request body
+    - 404: User not found
+    - 500: Internal server error
 
 ### Game Play
 
 - **Create Play**
-  - `PUT /api/v1/play/{playId}`
-  - Request Body: `{ "userId": "user-uuid", "betAmount": 50.0 }`
-  - Creates a new blackjack play with the specified ID, user ID, and bet amount
+  - `PUT /api/v1/play/{id}`
+  - Description: Creates a new blackjack play with the specified ID, user ID, and bet amount
+  - Request Body:
+    ```json
+    {
+      "userId": "user-uuid",
+      "betAmount": 50.0
+    }
+    ```
+  - Response Status:
+    - 201: Play created successfully
+    - 400: Invalid request body or validation error
+    - 409: Play already exists
+    - 500: Internal server error
 
 - **Get Play**
-  - `GET /api/v1/play/{playId}`
-  - Retrieves a play by its unique identifier
+  - `GET /api/v1/play/{id}`
+  - Description: Retrieves a play by its unique identifier
+  - Response Body (200 OK):
+    ```json
+    {
+      "id": "play-uuid",
+      "userId": "user-uuid",
+      "betAmount": 50.0,
+      "status": "IN_PROGRESS",
+      "playerCards": [
+        {"suit": "HEARTS", "rank": "ACE"},
+        {"suit": "DIAMONDS", "rank": "KING"}
+      ],
+      "dealerCards": [
+        {"suit": "CLUBS", "rank": "SEVEN"}
+      ],
+      "playerScore": 21,
+      "dealerScore": 7,
+      "result": null
+    }
+    ```
+  - Response Status:
+    - 200: Play found (returns PlayDto)
+    - 400: Invalid play ID format
+    - 404: Play not found
+    - 500: Internal server error
 
-- **Perform Play**
-  - `POST /api/v1/play/{playId}`
-  - Executes a blackjack play (draws cards) for the specified play ID
+- **Perform Play (Hit)**
+  - `POST /api/v1/play/{id}`
+  - Description: Executes a blackjack play (draws cards) for the specified play ID
+  - Response Body (200 OK):
+    ```json
+    {
+      "id": "play-uuid",
+      "userId": "user-uuid",
+      "betAmount": 50.0,
+      "status": "IN_PROGRESS",
+      "playerCards": [
+        {"suit": "HEARTS", "rank": "ACE"},
+        {"suit": "DIAMONDS", "rank": "KING"},
+        {"suit": "SPADES", "rank": "FIVE"}
+      ],
+      "dealerCards": [
+        {"suit": "CLUBS", "rank": "SEVEN"}
+      ],
+      "playerScore": 16,
+      "dealerScore": 7,
+      "result": null
+    }
+    ```
+  - Response Status:
+    - 200: Play performed successfully (returns PlayDto)
+    - 400: Invalid play ID format
+    - 404: Play not found
+    - 409: Play is already completed
+    - 500: Internal server error
+
+- **Perform Stand**
+  - `PATCH /api/v1/play/{id}`
+  - Description: Player stands, dealer draws until reaching at least 17 points, and the game result is determined
+  - Response Body (200 OK):
+    ```json
+    {
+      "id": "play-uuid",
+      "userId": "user-uuid",
+      "betAmount": 50.0,
+      "status": "COMPLETED",
+      "playerCards": [
+        {"suit": "HEARTS", "rank": "ACE"},
+        {"suit": "DIAMONDS", "rank": "KING"}
+      ],
+      "dealerCards": [
+        {"suit": "CLUBS", "rank": "SEVEN"},
+        {"suit": "HEARTS", "rank": "NINE"}
+      ],
+      "playerScore": 21,
+      "dealerScore": 16,
+      "result": "WIN"
+    }
+    ```
+  - Response Status:
+    - 200: Stand performed successfully (returns PlayDto)
+    - 400: Invalid play ID format
+    - 404: Play not found
+    - 409: Play is already completed
+    - 500: Internal server error
 
 ### Ranking
 
 - **Get Scoreboard**
   - `GET /api/v1/ranking?limit=10`
-  - Retrieves a list of player rankings sorted by earnings
+  - Description: Retrieves a list of player rankings sorted by earnings
+  - Query Parameters:
+    - limit (optional, default=10): Maximum number of rankings to return
+  - Response Body (200 OK):
+    ```json
+    [
+      {
+        "userId": "user-uuid-1",
+        "userName": "John Doe",
+        "earnings": 500.0,
+        "wins": 10,
+        "losses": 5
+      },
+      {
+        "userId": "user-uuid-2",
+        "userName": "Jane Smith",
+        "earnings": 300.0,
+        "wins": 7,
+        "losses": 4
+      }
+    ]
+    ```
+  - Response Status:
+    - 200: Rankings retrieved successfully (returns array of RankingDto)
+    - 500: Internal server error
 
 ## Postman Configuration
 
@@ -185,6 +360,16 @@ You can run `make help` to see this list of commands directly in your terminal.
 
 ## API Documentation
 
-The API documentation is available at:
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/api-docs`
+The API is documented using OpenAPI (Swagger) specifications. You can access the interactive documentation at:
+
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+  - Interactive documentation that allows you to try out the API endpoints directly from your browser
+
+- **OpenAPI JSON**: `http://localhost:8080/api-docs`
+  - Raw OpenAPI specification in JSON format, which can be imported into tools like Postman
+
+The Swagger UI provides detailed information about all endpoints, including:
+- Request parameters and bodies
+- Response formats and status codes
+- Example requests and responses
+- Schema definitions for all data models
