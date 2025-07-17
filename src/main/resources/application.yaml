@@ -16,7 +16,7 @@ spring:
       schema-locations: classpath:schema.sql
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
       password: ${MONGODB_PASSWORD}
       port: ${MONGODB_PORT}
       host: ${MONGODB_HOST}
@@ -26,8 +26,8 @@ spring:
 
 logging:
   level:
-    org.springframework.r2dbc.core: DEBUG
-    io.r2dbc.spi: DEBUG
+    #    org.springframework.r2dbc.core: DEBUG
+    #    io.r2dbc.spi: DEBUG
     dev.eduzavarce.blackjack_api: INFO
 
 springdoc:
