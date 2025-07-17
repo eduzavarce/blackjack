@@ -20,11 +20,12 @@ R2DBC_URL=r2dbc:mysql://localhost:3306/blackjack
 R2DBC_USER=root
 R2DBC_PASSWORD=secret
 
-MONGODB_PASSWORD=secret
-MONGODB_PORT=27017
-MONGODB_HOST=localhost
-MONGODB_DATABASE=blackjack
+# MongoDB URI is constructed as: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
 MONGODB_USER=root
+MONGODB_PASSWORD=secret
+MONGODB_HOST=localhost
+MONGODB_PORT=27017
+MONGODB_DATABASE=blackjack
 ```
 
 ### Building and Running the Project

@@ -16,12 +16,7 @@ spring:
       schema-locations: classpath:schema.sql
   data:
     mongodb:
-      uri: mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}
-      password: ${MONGODB_PASSWORD}
-      port: ${MONGODB_PORT}
-      host: ${MONGODB_HOST}
-      database: ${MONGODB_DATABASE}
-      username: ${MONGODB_USER}
+      uri: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}
       auto-index-creation: true
 
 logging:
