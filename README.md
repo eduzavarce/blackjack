@@ -265,10 +265,14 @@ Common HTTP status codes:
 
 ## Postman Configuration
 
-A Postman collection is included in the project at `src/main/resources/postman_collection.json`. To use it:
+Postman collection and environment files are available in the resources folder:
+- `src/main/resources/Blackjack API.postman_collection.json`
+- `src/main/resources/blackjack.postman_environment.json`
 
-1. Import the collection into Postman
-2. Set the `baseUrl` variable to your server address (default: `http://localhost:8080`)
+To use them:
+
+1. Import both the collection and environment into Postman
+2. Select the imported environment in Postman
 3. The collection includes scripts to automatically generate UUIDs for users and plays
 4. Follow the request sequence:
    - Create User → Create Play → Perform Play → Get Scoreboard
