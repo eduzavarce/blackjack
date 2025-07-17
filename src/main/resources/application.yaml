@@ -16,6 +16,7 @@ spring:
       schema-locations: classpath:schema.sql
   data:
     mongodb:
+      uri: ${MONGODB_URI}
       password: ${MONGODB_PASSWORD}
       port: ${MONGODB_PORT}
       host: ${MONGODB_HOST}

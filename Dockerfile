@@ -4,7 +4,7 @@
 FROM gradle:8.7-jdk21 AS build
 WORKDIR /app
 COPY . .
-RUN make all
+RUN gradle build --no-daemon -x test
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
